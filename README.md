@@ -72,13 +72,19 @@ unmodified either way because it brings its own scoped project. Run these
 must exist first:
 
 ```sh
-# 1. The AppProject platform-aoa depends on. `argocd app create` only
-#    handles Applications, so this one goes in via kubectl (or `argocd proj create -f`):
-kubectl apply -f bootstrap/akp-bootstrap-project.yaml
+# 1. The AppProject platform-aoa depends on.
+argocd proj create -f bootstrap/akp-bootstrap-project.yaml --upsert
 
 # 2. The root app-of-apps.
-argocd app create -f bootstrap/platform-aoa.yaml
+argocd app create -f bootstrap/platform-aoa.yaml --upsert
 ```
+
+Both steps use the `argocd` CLI you're already logged in with. On Akuity the
+Argo CD control plane is hosted, so you have no kubeconfig for it, and
+`kubectl apply` would land in whatever cluster your current context points at.
+`--upsert` makes both commands safe to re-run. After step 2, `platform-aoa`
+syncs `bootstrap/` and adopts the project, so from then on it's managed from
+git like everything else.
 
 If you only run step 2 (e.g. re-running after an interrupted bootstrap),
 Argo CD will reject it or leave it perpetually out-of-sync with a

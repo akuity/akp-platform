@@ -1,6 +1,6 @@
-# Root app-of-apps. Apply bootstrap/akp-bootstrap-project.yaml FIRST, then
-# apply this ONCE against the Argo CD control plane
-# (`argocd app create -f bootstrap/platform-aoa.yaml` or kubectl apply) and
+# Root app-of-apps. Apply bootstrap/akp-bootstrap-project.yaml FIRST
+# (`argocd proj create -f bootstrap/akp-bootstrap-project.yaml`), then
+# apply this ONCE (`argocd app create -f bootstrap/platform-aoa.yaml`) and
 # everything else in this repo — every app's Argo CD and Kargo resources —
 # is discovered and deployed automatically by the ApplicationSets in this
 # directory. Onboarding a new app never requires touching bootstrap/ again.
