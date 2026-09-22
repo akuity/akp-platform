@@ -23,7 +23,7 @@ Pick one name and reuse it everywhere. For an app named `orders`:
 apps/orders/
 ├── README.md                  # what the app is, which pattern it uses
 ├── argocd/
-│   ├── appproject.yaml        # name: orders
+│   ├── appproject.yaml        # name: orders, sync-wave -1
 │   └── appset.yaml            # one Application per env, authorized-stage annotations
 ├── kargo/
 │   ├── project.yaml           # sync-wave -1
@@ -43,6 +43,8 @@ Start by copying the closest example:
 
 ## Checklist before opening the PR
 
+- [ ] `argocd/appproject.yaml` carries `argocd.argoproj.io/sync-wave: "-1"` so
+      the AppProject exists before the ApplicationSet that references it.
 - [ ] `kargo/project.yaml` carries `argocd.argoproj.io/sync-wave: "-1"` so the
       project namespace exists before its Warehouse/Stages.
 - [ ] Every Application the pipeline syncs carries
