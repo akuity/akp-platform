@@ -4,6 +4,29 @@ Adding an app touches exactly one place: a new directory under `apps/`.
 `bootstrap/` never changes — its ApplicationSets discover `apps/*/argocd` and
 `apps/*/kargo` from git and deploy them automatically on merge.
 
+## Before you touch anything
+
+The `guestbook-*` app directories and `kargo-shared/` are demos, not
+scaffolding to keep. Copying the closest example (below) is the right way to
+start — but copy, then cut down, don't just rename fields and leave
+everything else:
+
+- **Delete stages/tasks you don't use.** Don't rename an example stage
+  (`uat` → `non-prod`, say) and leave the rest of that stage's structure in
+  place if it doesn't match your actual promotion flow — figure out your
+  dev/staging/prod (or whatever) shape first, then write only those stages.
+- **`kargo-shared/`'s CustomPromotionSteps are opt-in**, not a dependency
+  every app needs. If your app doesn't call one, don't wire the app up to
+  reference it — and if nothing in your fork uses `kargo-shared/` at all,
+  it's safe to delete the directory and its bootstrap Application entirely.
+- **Every field in the example `appproject.yaml` / `kargo/project.yaml` is
+  either load-bearing (keep it) or a placeholder (replace it)** — see the
+  inline comments in each file before assuming a field is boilerplate.
+
+If you're not sure whether something is convention or example content, check
+whether it's mentioned in this doc's "naming convention" or "required
+layout" sections below — if it isn't, it's probably example content.
+
 ## The naming convention (load-bearing)
 
 Pick one name and reuse it everywhere. For an app named `orders`:

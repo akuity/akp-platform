@@ -64,11 +64,31 @@ Argo CD and Kargo read it anonymously), then clone your fork.
 git add -A && git commit -m "personalize" && git push
 ```
 
-**3. Bootstrap** — the only manifest you ever apply by hand:
+**3. Bootstrap** — the only two manifests you ever apply by hand. This repo
+never assumes Argo CD's built-in `default` AppProject is usable — many orgs
+lock it down to deny-by-default as a security baseline, and bootstrap works
+unmodified either way because it brings its own scoped project. Run these
+**in order** — `platform-aoa` references the `akp-bootstrap` project, so it
+must exist first:
 
 ```sh
-argocd app create -f bootstrap/platform-aoa.yaml
+# 1. The AppProject platform-aoa depends on.
+argocd proj create -f bootstrap/akp-bootstrap-project.yaml --upsert
+
+# 2. The root app-of-apps.
+argocd app create -f bootstrap/platform-aoa.yaml --upsert
 ```
+
+Both steps use the `argocd` CLI you're already logged in with. On Akuity the
+Argo CD control plane is hosted, so you have no kubeconfig for it, and
+`kubectl apply` would land in whatever cluster your current context points at.
+`--upsert` makes both commands safe to re-run. After step 2, `platform-aoa`
+syncs `bootstrap/` and adopts the project, so from then on it's managed from
+git like everything else.
+
+If you only run step 2 (e.g. re-running after an interrupted bootstrap),
+Argo CD will reject it or leave it perpetually out-of-sync with a
+"project akp-bootstrap not found"-style error — re-run step 1 first.
 
 Within a minute or two you should see `platform-aoa`, `argocd-*`, and
 `kargo-*` Applications in Argo CD, and four Projects in the Kargo UI.
@@ -167,8 +187,9 @@ pattern into a real repo.
 ## Repo layout
 
 ```
-bootstrap/            # platform-aoa.yaml, the two discovery ApplicationSets,
-                      #   and the kargo-shared Application
+bootstrap/            # akp-bootstrap-project.yaml, platform-aoa.yaml, the
+                      #   two discovery ApplicationSets, and the kargo-shared
+                      #   Application
 kargo-shared/         # CustomPromotionSteps shared by every Kargo Project
 apps/<name>/          # one self-contained app: argocd/ + kargo/ + manifests
   argocd/             #   AppProject + ApplicationSet (platform-team owned)

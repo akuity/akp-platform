@@ -1,0 +1,37 @@
+# Dedicated AppProject for the bootstrap layer itself (platform-aoa,
+# argocd-apps, kargo-apps, kargo-shared). Apply this BEFORE platform-aoa —
+# it's the one thing bootstrap can't create for itself, since platform-aoa's
+# own Application has to reference a project that already exists.
+#
+# Why not `project: default`? Many orgs deny-by-default their `default`
+# AppProject as a security baseline (locking sourceRepos/destinations down to
+# nothing) before ever touching this repo. Because this repo has never
+# assumed `default` is usable, bootstrap works unmodified on those instances.
+#
+# Scoped to exactly what bootstrap needs: this repo as the only source, and
+# the two destinations bootstrap deploys to (the Argo CD control plane's own
+# `argocd` namespace, and the Kargo control plane). It does NOT need to be
+# widened for onboarding new apps — apps/*/argocd/appproject.yaml is where
+# each app's own project lives.
+#
+# clusterResourceWhitelist: like apps/*/argocd/appproject.yaml, deliberately
+# permissive for quickstart purposes (bootstrap already syncs Argo CD's own
+# AppProject/ApplicationSet plus Kargo's cluster-scoped CustomPromotionStep —
+# see kargo-shared.yaml) — scope down before production use.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: akp-bootstrap
+  namespace: argocd
+spec:
+  description: Scoped project for the platform bootstrap layer (never relies on default)
+  sourceRepos:
+    - https://github.com/example-org/akp-platform.git
+  destinations:
+    - name: in-cluster
+      namespace: argocd
+    - name: kargo
+      namespace: '*'
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

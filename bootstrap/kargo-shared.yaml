@@ -17,7 +17,9 @@ metadata:
   name: kargo-shared
   namespace: argocd
 spec:
-  project: default
+  # Part of the bootstrap layer, not an app — uses the dedicated akp-bootstrap
+  # project, never `default` (see akp-bootstrap-project.yaml for why).
+  project: akp-bootstrap
   source:
     repoURL: https://github.com/example-org/akp-platform.git
     targetRevision: HEAD
