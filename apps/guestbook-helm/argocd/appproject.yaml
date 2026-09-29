@@ -6,6 +6,11 @@ kind: AppProject
 metadata:
   name: guestbook-helm
   namespace: argocd
+  annotations:
+    # Sync before the ApplicationSet in this directory, which references this
+    # project; same-wave ordering is not guaranteed, and an ApplicationSet
+    # applied first sits Degraded ("AppProject ... not found") until it retries.
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   description: Guestbook deployed as a Helm chart, promoted by committing values bumps to main
   sourceRepos:
